@@ -1,28 +1,33 @@
-import axios from 'axios'
-import Head from 'next/head'
-import Image from 'next/image'
-import React, { useState, useEffect } from 'react'
-import styles from '../styles/Home.module.css'
-import BarChartLayout from './barchart'
-import LineChartLayout from './linechart'
-import AreaChartLayout from './areachart'
+import React, { useState, useEffect } from "react";
+import Head from "next/head";
+import axios from "axios";
+import Button from "@mui/material/Button";
+import { ProSidebarProvider } from "react-pro-sidebar";
+import { Sidebar, Menu, MenuItem } from "react-pro-sidebar";
+import LineChartLayout from "./linechart";
+import BarChartLayout from "./barchart";
+import AreaChartLayout from "./areachart";
 
-import { ProSidebarProvider } from 'react-pro-sidebar';
-import { Sidebar, Menu, MenuItem, SubMenu } from 'react-pro-sidebar';
-import Button from '@mui/material/Button';
+import styles from "../styles/Home.module.css";
 
-const APP_ID = "84570c404a48399912145fb74a27ec05"
+//const APP_ID = "84570c404a48399912145fb74a27ec05"
+const APP_ID = process.env.NEXT_PUBLIC_OPENWEATHERMAP_APP_ID;
 
 export default function Home() {
-  const [cities, loadCities] = useState('')
+  const [cities, loadCities] = useState("");
   const [data, setData] = useState([]);
   const [state, setState] = useState(0);
-  const [keyword, setCityKeyword] = useState('');
-  const [sampleData, setSample] = useState(15);
+  const [keyword, setCityKeyword] = useState("");
 
   const getCities = async () => {
-    const res = await axios.get("https://countriesnow.space/api/v0.1/countries/capital");
-    loadCities(res.data.data.map(country => country.capital).filter(city => city != ""));
+    const res = await axios.get(
+      "https://countriesnow.space/api/v0.1/countries/capital"
+    );
+    loadCities(
+      res.data.data
+        .map((country) => country.capital)
+        .filter((city) => city != "")
+    );
   };
 
   const getWeather = (capital) => {
@@ -30,25 +35,28 @@ export default function Home() {
       .get("https://api.openweathermap.org/geo/1.0/direct", {
         params: {
           q: capital,
-          appid: APP_ID
-        }
-      }).then((response) => {
-        axios.get("https://api.openweathermap.org/data/2.5/forecast", {
-          params: {
-            lat: response.data[0].lat,
-            lon: response.data[0].lon,
-            appid: APP_ID
-          }
-        }).then((res) => {
-          console.log(res.data)
-          setData(res.data.list);
-        })
+          appid: APP_ID,
+        },
       })
-  }
+      .then((response) => {
+        axios
+          .get("https://api.openweathermap.org/data/2.5/forecast", {
+            params: {
+              lat: response.data[0].lat,
+              lon: response.data[0].lon,
+              appid: APP_ID,
+            },
+          })
+          .then((res) => {
+            console.log(res.data);
+            setData(res.data.list);
+          });
+      });
+  };
 
   useEffect(() => {
     getCities();
-    return () => { };
+    return () => {};
   }, []);
 
   return (
@@ -60,17 +68,29 @@ export default function Home() {
       </Head>
 
       <main>
-
         <div className={styles.maindiv}>
-
           <div className={styles.navbar}>
-            
-            <input type="text" onChange={(e) => setCityKeyword(e.target.value)} className={styles.search}/>
+            <input
+              type="text"
+              onChange={(e) => setCityKeyword(e.target.value)}
+              className={styles.search}
+            />
 
             <ProSidebarProvider>
               <Sidebar className={styles.sidebar}>
                 <Menu>
-                  {Array(cities.length).fill(true).map((_, i) => <MenuItem key={i} onClick={() => getWeather(cities[i])}>{cities[i]}</MenuItem>).filter(city => city.props.children.toLowerCase().includes(keyword) ? city : '')}
+                  {Array(cities.length)
+                    .fill(true)
+                    .map((_, i) => (
+                      <MenuItem key={i} onClick={() => getWeather(cities[i])}>
+                        {cities[i]}
+                      </MenuItem>
+                    ))
+                    .filter((city) =>
+                      city.props.children.toLowerCase().includes(keyword)
+                        ? city
+                        : ""
+                    )}
                 </Menu>
               </Sidebar>
             </ProSidebarProvider>
@@ -78,30 +98,52 @@ export default function Home() {
 
           <div className={styles.chart}>
             <div className={styles.chartSelector}>
-              <Button variant="contained" className={styles.button} onClick={() => { setState(0) }}>
+              <Button
+                variant="contained"
+                className={styles.button}
+                onClick={() => {
+                  setState(0);
+                }}
+              >
                 All Chart
               </Button>
-              <Button variant="contained" className={styles.button} onClick={() => { setState(1) }}>
+              <Button
+                variant="contained"
+                className={styles.button}
+                onClick={() => {
+                  setState(1);
+                }}
+              >
                 Area Chart
               </Button>
-              <Button variant="contained" className={styles.button} onClick={() => { setState(2) }}>
+              <Button
+                variant="contained"
+                className={styles.button}
+                onClick={() => {
+                  setState(2);
+                }}
+              >
                 Bar Chart
               </Button>
-              <Button variant="contained" className={styles.button} onClick={() => { setState(3) }}>
+              <Button
+                variant="contained"
+                className={styles.button}
+                onClick={() => {
+                  setState(3);
+                }}
+              >
                 Line Chart
               </Button>
             </div>
 
-            <div className={styles.chartArea} >
+            <div className={styles.chartArea}>
               {(state == 0 || state == 1) && <AreaChartLayout list={data} />}
               {(state == 0 || state == 2) && <BarChartLayout list={data} />}
               {(state == 0 || state == 3) && <LineChartLayout list={data} />}
             </div>
           </div>
-
         </div>
-
       </main>
     </div>
-  )
+  );
 }

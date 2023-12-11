@@ -1,5 +1,4 @@
-import {showMaxNumber} from './helper'
-import React from 'react';
+import React from "react";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -10,8 +9,9 @@ import {
   Tooltip,
   Filler,
   Legend,
-} from 'chart.js';
-import { Line } from 'react-chartjs-2';
+} from "chart.js";
+import { Line } from "react-chartjs-2";
+import { showMaxNumber } from "./helper";
 
 ChartJS.register(
   CategoryScale,
@@ -28,11 +28,11 @@ export const options = {
   responsive: true,
   plugins: {
     legend: {
-      position: 'top',
+      position: "top",
     },
     title: {
       display: true,
-      text: 'Area Chart',
+      text: "Area Chart",
     },
   },
 };
@@ -40,10 +40,9 @@ export const options = {
 let labels = [];
 
 export default function AreaChartLayout(props) {
-
-  const timeArray = props.list.map(item => item.dt_txt);
-  const tempArray = props.list.map(item => item.main.temp - 273.15);
-  const humArray = props.list.map(item => item.main.humidity);
+  const timeArray = props.list.map((item) => item.dt_txt);
+  const tempArray = props.list.map((item) => item.main.temp - 273.15);
+  const humArray = props.list.map((item) => item.main.humidity);
 
   for (let i = 0; i < Math.min(tempArray.length, showMaxNumber); i++) {
     labels[i] = JSON.stringify(timeArray[i]).substr(9, 8);
@@ -53,17 +52,17 @@ export default function AreaChartLayout(props) {
     datasets: [
       {
         fill: true,
-        label: 'Temperature',
+        label: "Temperature",
         data: tempArray,
-        borderColor: 'rgba(255, 99, 132)',
-        backgroundColor: 'rgba(255, 99, 132, 0.5)',
+        borderColor: "rgba(255, 99, 132)",
+        backgroundColor: "rgba(255, 99, 132, 0.5)",
       },
       {
         fill: true,
-        label: 'Humidity',
+        label: "Humidity",
         data: humArray,
-        borderColor: 'rgba(53, 162, 235)',
-        backgroundColor: 'rgba(53, 162, 235, 0.5)',
+        borderColor: "rgba(53, 162, 235)",
+        backgroundColor: "rgba(53, 162, 235, 0.5)",
       },
     ],
   };
